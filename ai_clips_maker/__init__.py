@@ -1,5 +1,5 @@
 # Functions
-from .clip.clipfinder import ClipFinder
+from .txtslice.segment_picker import ClipFinder
 from .media.audio_file import AudioFile
 from .media.audiovideo_file import AudioVideoFile
 from .media.editor import MediaEditor
@@ -8,7 +8,6 @@ from .resize.resize import resize
 from .transcribe.transcriber import Transcriber
 
 # Types
-from .clip.clip import Clip
 from .resize.crops import Crops
 from .resize.segment import Segment
 from .transcribe.transcription import Transcription
@@ -19,7 +18,6 @@ __all__ = [
     "AudioVideoFile",
     "Character",
     "ClipFinder",
-    "Clip",
     "Crops",
     "MediaEditor",
     "Segment",
