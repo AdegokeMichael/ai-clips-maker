@@ -7,7 +7,7 @@ import logging
 import torch
 
 from .matcher import MediaSegment
-from .exceptions import ClipFinderError
+from .exceptions import ClipSegmentationError as ClipFinderError
 from .embed_vectorizer import TextEmbedder
 from .tiler_algorithm import TextTiler, TextTilerConfigManager
 
