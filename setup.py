@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 setup(
-    name="ai-clips-maker",
+    name="ai_clips_maker",
     packages=find_packages(include=["ai_clips_maker", "ai_clips_maker.*"], exclude=["tests*"]),
     py_modules=["ai_clips_maker"],
     version="1.0.0",
