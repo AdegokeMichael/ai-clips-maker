@@ -2,6 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="ai-clips-maker",
+    packages=find_packages(include=["ai_clips_maker", "ai_clips_maker.*"], exclude=["tests*"]),
     py_modules=["ai_clips_maker"],
     version="1.0.0",
     description=(
@@ -14,7 +15,7 @@ setup(
     author_email="alperennsumeroglu@gmail.com",
     url="https://github.com/alperensumeroglu/ai-clips-maker",
     license="MIT",
-    packages=find_packages(exclude=["tests*"]),
+    #packages=find_packages(exclude=["tests*"]),
     install_requires=[
         "av",
         "facenet-pytorch",
