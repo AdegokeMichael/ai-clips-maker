@@ -46,7 +46,7 @@ class AudioFile(TemporalMediaFile):
         output_path: str,
         codec: str,
         overwrite: bool = True,
-    ) -> AudioFile | None:
+    ) -> "AudioFile" | None:
         self.assert_exists()
 
         if overwrite:
