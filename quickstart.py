@@ -2,7 +2,7 @@ from ai_clips_maker import Transcriber, ClipFinder, resize
 
 # Step 1: Transcription
 transcriber = Transcriber()
-transcription = transcriber.transcribe(audio_file_path="/home/michael_adegoke/testvideo.mp4")
+transcription = transcriber.transcribe(audio_path="/home/michael_adegoke/testvideo.mp4")
 
 # Step 2: Clip detection
 clip_finder = ClipFinder()
