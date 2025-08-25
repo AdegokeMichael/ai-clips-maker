@@ -7,6 +7,8 @@ import subprocess
 
 from .temporal_media_file import TemporalMediaFile
 from ai_clips_maker.filesys.file import File
+from __future__ import annotations
+
 
 SUCCESS = 0
 
@@ -46,7 +48,7 @@ class AudioFile(TemporalMediaFile):
         output_path: str,
         codec: str,
         overwrite: bool = True,
-    ) -> "AudioFile" | None:
+    ) -> AudioFile | None:
         self.assert_exists()
 
         if overwrite:
