@@ -60,7 +60,7 @@ class Dir(FileSystemObject):
         self._path = new_path
         logging.debug(f"Directory moved to '{new_path}'.")
 
-    def get_parent_dir(self) -> Dir:
+    def get_parent_dir(self) -> "Dir":
         """Returns the parent directory object."""
         return Dir(self.get_parent_dir_path())
 
@@ -84,7 +84,7 @@ class Dir(FileSystemObject):
         """Returns all file objects within the directory."""
         return [obj for obj in self.scan_dir() if isinstance(obj, File)]
 
-    def get_subdirs(self) -> list[Dir]:
+    def get_subdirs(self) -> list["Dir"]:
         """Returns all subdirectory objects within the directory."""
         return [obj for obj in self.scan_dir() if isinstance(obj, Dir)]
 
