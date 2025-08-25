@@ -2,6 +2,7 @@
 Handles operations on audio-only media files.
 """
 from __future__ import annotations
+
 import logging
 import subprocess
 
