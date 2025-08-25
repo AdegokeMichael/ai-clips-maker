@@ -1,13 +1,13 @@
 """
 Handles operations on audio-only media files.
 """
-
+from __future__ import annotations
 import logging
 import subprocess
 
 from .temporal_media_file import TemporalMediaFile
 from ai_clips_maker.filesys.file import File
-from __future__ import annotations
+
 
 
 SUCCESS = 0
