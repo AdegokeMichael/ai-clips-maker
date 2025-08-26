@@ -311,3 +311,11 @@ class MediaEditor:
             return AudioVideoFile(file_path_to_create_media_file_from)
         else:
             raise MediaEditorError("Unsupported media file type.")
+        
+    def instantiate_as_temporal_media_file(self, path: str):
+        if path.lower().endswith((".mp3", ".wav", ".flac")):
+            return AudioFile(path)
+        elif path.lower().endswith((".mp4", ".mkv", ".mov", ".avi")):
+            return AudioVideoFile(path)
+        else:
+            raise ValueError(f"Unsupported media type for: {path}")    
