@@ -315,7 +315,7 @@ class MediaEditor:
     def instantiate_as_temporal_media_file(self, path: str):
         if path.lower().endswith((".mp3", ".wav", ".flac")):
             return AudioFile(path)
-        elif path.lower().endswith((".mp4", ".mkv", ".mov", ".avi")):
+        elif path.lower().endswith((".mp4", ".mkv", ".mov", ".avi", ".webm")):
             return AudioVideoFile(path)
         else:
             raise ValueError(f"Unsupported media type for: {path}")    
