@@ -53,7 +53,7 @@ crops = resize(
 )
 print("Detected segments:", crops.segments)
 
-# --- Step 4: Save clips with ffmpeg ---
+# --- Step 4: Save clips with ffmpeg (with auto-limiting 30–60s) ---
 clips_output_dir = os.path.join(clips_output_base, safe_title)
 os.makedirs(clips_output_dir, exist_ok=True)
 
@@ -61,6 +61,14 @@ for i, clip in enumerate(clips, start=1):
     start_time = clip.start_time
     end_time = clip.end_time
     duration = end_time - start_time
+
+    # --- Apply auto-limiting logic ---
+    if duration < 30:
+        print(f"⏭️ Skipping clip{i} ({duration:.1f}s) – too short")
+        continue
+    elif duration > 60:
+        print(f"⚖️ Trimming clip{i} ({duration:.1f}s) to 60s")
+        duration = 60  # cap at 60s
 
     output_file = os.path.join(clips_output_dir, f"{safe_title}_clip{i}.mp4")
 
@@ -76,6 +84,7 @@ for i, clip in enumerate(clips, start=1):
     print(f"✂️ Exporting {output_file}...")
     subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     print(f"✅ Saved {output_file}")
+
 
 
 
