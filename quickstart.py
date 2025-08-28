@@ -8,30 +8,35 @@ import re
 # --- Load .env variables ---
 load_dotenv()
 url = os.getenv("YOUTUBE_URL")
+download_path = os.getenv("DOWNLOAD_PATH")
+clips_output_base = os.getenv("CLIPS_PATH")
+
+# --- Ensure directories exist ---
+os.makedirs(download_path, exist_ok=True)
+os.makedirs(clips_output_base, exist_ok=True)
 
 # --- Step 0: Download video with safe title ---
-output_path = "/home/michael_adegoke"
-
 yt = YouTube(url)
+
 # Clean up title to make it filename-safe
 safe_title = re.sub(r'[^a-zA-Z0-9_\- ]', '', yt.title).replace(" ", "_")
 filename = f"{safe_title}.mp4"
-download_path = os.path.join(output_path, filename)
+video_path = os.path.join(download_path, filename)
 
-if not os.path.exists(download_path):
+if not os.path.exists(video_path):
     print(f"📥 Downloading: {yt.title}")
     stream = yt.streams.filter(progressive=True, file_extension="mp4")\
                        .order_by("resolution")\
                        .desc()\
                        .first()
-    stream.download(output_path=output_path, filename=filename)
-    print(f"✅ Download complete: {download_path}")
+    stream.download(output_path=download_path, filename=filename)
+    print(f"✅ Download complete: {video_path}")
 else:
-    print(f"⚡ Already downloaded: {download_path}")
+    print(f"⚡ Already downloaded: {video_path}")
 
 # --- Step 1: Transcription ---
 transcriber = Transcriber()
-transcription = transcriber.transcribe(audio_path=download_path, lang="en")
+transcription = transcriber.transcribe(audio_path=video_path, lang="en")
 
 # --- Step 2: Clip detection ---
 clip_finder = ClipFinder()
@@ -43,13 +48,13 @@ if len(clips) > 0:
 
 # --- Step 3: Cropping & resizing (optional, for shorts format) ---
 crops = resize(
-    video_file_path=download_path,
+    video_file_path=video_path,
     aspect_ratio=(9, 16)
 )
 print("Detected segments:", crops.segments)
 
 # --- Step 4: Save clips with ffmpeg ---
-clips_output_dir = os.path.join(output_path, f"{safe_title}_clips")
+clips_output_dir = os.path.join(clips_output_base, safe_title)
 os.makedirs(clips_output_dir, exist_ok=True)
 
 for i, clip in enumerate(clips, start=1):
@@ -59,10 +64,9 @@ for i, clip in enumerate(clips, start=1):
 
     output_file = os.path.join(clips_output_dir, f"{safe_title}_clip{i}.mp4")
 
-    # ffmpeg command to cut clip
     command = [
         "ffmpeg", "-y",
-        "-i", download_path,
+        "-i", video_path,
         "-ss", str(start_time),
         "-t", str(duration),
         "-c", "copy",
@@ -72,6 +76,7 @@ for i, clip in enumerate(clips, start=1):
     print(f"✂️ Exporting {output_file}...")
     subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     print(f"✅ Saved {output_file}")
+
 
 
 
