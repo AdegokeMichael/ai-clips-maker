@@ -27,7 +27,7 @@ subprocess.run([
     "-f", "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]",
     "-o", os.path.join(download_path, "%(title)s.%(ext)s"),
     "--write-info-json",
-    "--cookies", "cookies.txt",
+    #"--cookies", "cookies.txt",
     "--cookies", os.path.join(os.getcwd(), "cookies.txt"),
     url
 ], check=True)
