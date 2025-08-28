@@ -26,7 +26,7 @@ video_template = os.path.join(download_path, "%(title)s.%(ext)s")
 subprocess.run([
     "yt-dlp",
     "-f", "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]",
-    "-o", os.path.join(download_dir, "%(title)s.%(ext)s"),
+    "-o", os.path.join(download_path, "%(title)s.%(ext)s"),
     "--write-info-json",
     "--cookies-from-browser", "firefox",  # change to "chrome" if you use Chrome
     VIDEO_URL
