@@ -1,6 +1,7 @@
 import os
 import json
 import subprocess
+import glob
 from dotenv import load_dotenv
 
 # --- Load .env variables ---
@@ -32,25 +33,29 @@ subprocess.run([
 ], check=True)
 print("✅ Download complete.")
 
-# --- Find metadata JSON file ---
+# --- Find downloaded mp4 file dynamically ---
+mp4_files = glob.glob(os.path.join(download_path, "*.mp4"))
+if not mp4_files:
+    raise FileNotFoundError("❌ No .mp4 files found in download path")
+
+# Pick the most recently downloaded file
+video_filename = max(mp4_files, key=os.path.getctime)
+video_title = os.path.splitext(os.path.basename(video_filename))[0].replace(" ", "_")
+
+# --- Find metadata JSON file (optional, still useful for duration) ---
 json_files = [f for f in os.listdir(download_path) if f.endswith(".info.json")]
-if not json_files:
-    raise FileNotFoundError("❌ Could not find yt-dlp metadata JSON")
-json_path = os.path.join(download_path, json_files[0])
-with open(json_path, "r", encoding="utf-8") as f:
-    metadata = json.load(f)
-
-# --- Extract video info dynamically ---
-video_title = metadata.get("title", "untitled").replace(" ", "_")
-video_duration = metadata.get("duration", 0)  # in seconds
-video_filename = metadata.get("_filename")   # full path of downloaded file
-
-if not video_filename or not os.path.exists(video_filename):
-    raise FileNotFoundError("❌ Video file not found after download")
+if json_files:
+    json_path = os.path.join(download_path, json_files[0])
+    with open(json_path, "r", encoding="utf-8") as f:
+        metadata = json.load(f)
+    video_duration = metadata.get("duration", 0)
+else:
+    print("⚠️ Metadata JSON not found. Using default duration=0")
+    video_duration = 0
 
 print(f"📹 Title: {video_title}")
-print(f"⏱️ Duration: {video_duration}s")
 print(f"📂 Saved to: {video_filename}")
+print(f"⏱️ Duration: {video_duration}s")
 
 # --- Create clips output directory ---
 clips_output_dir = os.path.join(clips_output_base, video_title)
@@ -67,7 +72,7 @@ clips = []  # replace with AI detection logic if available
 
 # --- Auto-split fallback ---
 if not clips:
-    if auto_split:
+    if auto_split and video_duration > 0:
         print("⚠️ No AI-detected clips. Falling back to auto-split mode...")
         start = 0
         while start < video_duration:
@@ -75,7 +80,7 @@ if not clips:
             clips.append(Clip(start, end))
             start += clip_max
     else:
-        print("⚠️ No AI-detected clips and AUTO_SPLIT=False. Exiting.")
+        print("⚠️ No AI-detected clips and AUTO_SPLIT=False or unknown duration. Exiting.")
         exit(0)
 
 # --- Export clips ---
