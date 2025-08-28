@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import subprocess
 import os
 import re
+import yt_dlp
 
 # --- Load .env variables ---
 load_dotenv()
