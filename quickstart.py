@@ -1,9 +1,13 @@
 from ai_clips_maker import Transcriber, ClipFinder, resize
 from pytube import YouTube
+from dotenv import load_dotenv
 import os
 
+# --- Load .env variables ---
+load_dotenv()
+url = os.getenv("YOUTUBE_URL")
+
 # --- Step 0: Download video if not exists ---
-url = "https://www.youtube.com/watch?v=luVgetzI97Q"  # replace with your video link
 output_path = "/home/michael_adegoke"
 filename = "testvideo.mp4"
 download_path = os.path.join(output_path, filename)
@@ -36,8 +40,6 @@ crops = resize(
     aspect_ratio=(9, 16)
 )
 print(crops.segments)
-
-
 
 
 
