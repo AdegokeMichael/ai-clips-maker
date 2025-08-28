@@ -29,7 +29,7 @@ subprocess.run([
     "-o", os.path.join(download_path, "%(title)s.%(ext)s"),
     "--write-info-json",
     "--cookies-from-browser", "firefox",  # change to "chrome" if you use Chrome
-    VIDEO_URL
+    url
 ], check=True)
 print("✅ Download complete.")
 
