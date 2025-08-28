@@ -11,6 +11,15 @@ url = os.getenv("YOUTUBE_URL")
 download_path = os.getenv("DOWNLOAD_PATH")
 clips_output_base = os.getenv("CLIPS_PATH")
 
+# --- Debug print ---
+print("DEBUG: YOUTUBE_URL =", repr(url))
+print("DEBUG: DOWNLOAD_PATH =", repr(download_path))
+print("DEBUG: CLIPS_PATH =", repr(clips_output_base))
+
+# --- Fail fast if env vars missing ---
+if not url or not download_path or not clips_output_base:
+    raise ValueError("❌ Missing one or more .env variables. Check your .env file.")
+
 # --- Ensure directories exist ---
 os.makedirs(download_path, exist_ok=True)
 os.makedirs(clips_output_base, exist_ok=True)
