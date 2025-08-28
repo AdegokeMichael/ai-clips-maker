@@ -25,11 +25,13 @@ video_template = os.path.join(download_path, "%(title)s.%(ext)s")
 
 subprocess.run([
     "yt-dlp",
-    "-f", "mp4",
-    "-o", video_template,
-    "--write-info-json",  # saves metadata JSON alongside video
-    url
+    "-f", "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]",
+    "-o", os.path.join(download_dir, "%(title)s.%(ext)s"),
+    "--write-info-json",
+    "--cookies-from-browser", "firefox",  # change to "chrome" if you use Chrome
+    VIDEO_URL
 ], check=True)
+print("✅ Download complete.")
 
 # --- Find metadata JSON file ---
 json_files = [f for f in os.listdir(download_path) if f.endswith(".info.json")]
