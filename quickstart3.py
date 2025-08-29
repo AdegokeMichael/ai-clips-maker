@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 # Import ai-clips-maker modules
 from ai_clips_maker import Transcriber, ClipFinder, resize
-from ai_clips_maker.matcher import MediaSegment  # so we can handle clip objects
+from ai_clips_maker.txtslice.matcher import MediaSegment # so we can handle clip objects
 
 # Load environment variables
 load_dotenv()
