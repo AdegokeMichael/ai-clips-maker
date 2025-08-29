@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 # Import ai-clips-maker modules
 from ai_clips_maker import Transcriber, ClipFinder, resize
+from ai_clips_maker.matcher import MediaSegment  # so we can handle clip objects
 
 # Load environment variables
 load_dotenv()
@@ -33,38 +34,37 @@ if not video_files:
 video_file = os.path.join(download_path, video_files[0])
 print(f"✅ Download complete: {video_file}")
 
-# Step 2: Clip strategy
-clips = []
+# Step 2: Generate clips
+clips: list[MediaSegment] = []
 
 if use_auto_split:
     print("📝 Transcribing + AI highlight detection...")
     transcriber = Transcriber()
-    transcription = transcriber.transcribe(audio_file_path=video_file)
+    transcription = transcriber.transcribe(video_file)
 
     clip_finder = ClipFinder()
     clips = clip_finder.find_clips(transcription=transcription)
 
     if not clips:
-        print("⚠️ No clips detected, falling back to entire video.")
-        clips = [{"start_time": 0, "end_time": None}]
+        print("⚠️ No clips detected, falling back to full video.")
+        clips = [MediaSegment(start_time=0, end_time=None)]
 else:
     print("⏱ Using fixed time-based splitting...")
-    # Example: split every 60 seconds (you can adjust this)
-    clip_length = 60
     import cv2
     cap = cv2.VideoCapture(video_file)
     total_duration = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(cv2.CAP_PROP_FPS))
     cap.release()
 
+    clip_length = 60  # seconds
     clips = [
-        {"start_time": i, "end_time": min(i + clip_length, total_duration)}
+        MediaSegment(start_time=i, end_time=min(i + clip_length, total_duration))
         for i in range(0, total_duration, clip_length)
     ]
 
 # Step 3: Export clips
 for idx, clip in enumerate(clips):
-    start = clip.get("start_time")
-    end = clip.get("end_time")
+    start = clip.start_time
+    end = clip.end_time
 
     clip_path = os.path.join(download_path, f"clip_{idx+1}.mp4")
 
@@ -82,6 +82,7 @@ for idx, clip in enumerate(clips):
     print("📱 Resizing for TikTok/IG...")
     crops = resize(
         video_file_path=clip_path,
+        pyannote_auth_token=os.getenv("PYANNOTE_AUTH_TOKEN"),  # required arg
         aspect_ratio=(9, 16)
     )
     print(f"✅ Cropped segments for {clip_path}: {crops.segments}")
