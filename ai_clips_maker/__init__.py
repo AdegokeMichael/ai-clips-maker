@@ -6,6 +6,7 @@ from .media.editor import MediaEditor
 from .media.video_file import VideoFile
 from .resize.resize import resize
 from .transcribe.transcriber import WhisperTranscriber as Transcriber
+ 
 
 
 # Types
