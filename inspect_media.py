@@ -5,12 +5,10 @@ def inspect_media(path: str):
     media = TemporalMediaFile(path)
     print("\n=== Media Inspection ===")
     print(f"Path: {path}")
-    print(f"Duration (s): {media.duration}")
-    print(f"Has video: {media.has_video}")
-    print(f"Has audio: {media.has_audio}")
-    print(f"Video streams: {media.video_streams}")
-    print(f"Audio streams: {media.audio_streams}")
-    print("========================\n")
+    print(f"Type: {media.get_type()}")
+    print(f"Duration (s): {media.get_duration()}")
+    print(f"Audio bitrate: {media.get_bitrate('a:0')}")
+    print(f"Video bitrate: {media.get_bitrate('v:0')}")
 
 
 if __name__ == "__main__":
