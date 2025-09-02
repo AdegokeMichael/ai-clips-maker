@@ -2,20 +2,21 @@ import os
 import re
 import subprocess
 from dotenv import load_dotenv
+from pathlib import Path
 
 # Import ai-clips-maker modules
 from ai_clips_maker import Transcriber, ClipFinder, resize
-from ai_clips_maker.txtslice.matcher import MediaSegment  # so we can handle clip objects
+from ai_clips_maker.txtslice.matcher import MediaSegment  # handle clip objects
 
 # Load environment variables
 load_dotenv()
 
 url = os.getenv("YOUTUBE_URL")
-download_path = os.getenv("DOWNLOAD_PATH", "downloads")
+download_path = Path(os.getenv("DOWNLOAD_PATH", "downloads"))
 use_auto_split = os.getenv("USE_AUTO_SPLIT", "True").lower() == "true"
 
 # Ensure download folder exists
-os.makedirs(download_path, exist_ok=True)
+download_path.mkdir(parents=True, exist_ok=True)
 
 def sanitize_filename(name: str, max_length: int = 150) -> str:
     """Sanitize filenames by replacing unsafe chars and limiting length."""
@@ -26,40 +27,37 @@ def sanitize_filename(name: str, max_length: int = 150) -> str:
 print("⬇️ Downloading video with yt-dlp...")
 subprocess.run([
     "yt-dlp",
-    "-f", "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]",
-    "-o", os.path.join(download_path, "%(title)s.%(ext)s"),
+    "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
+    "-o", str(download_path / "%(title)s.%(ext)s"),
+    "--merge-output-format", "mp4",  # force a clean .mp4 container
     "--write-info-json",
     "--write-subs",
     "--write-auto-subs",
-    "--cookies", os.path.join(os.getcwd(), "cookies.txt"),
+    "--cookies", str(Path.cwd() / "cookies.txt"),
     url
 ], check=True)
 
-# Step 1b: Find and sanitize all downloaded files (video + sidecars)
-all_files = os.listdir(download_path)
-video_files = [f for f in all_files if f.endswith(".mp4")]
+# Step 1b: Find the most recent .mp4 file
+video_files = list(download_path.glob("*.mp4"))
 if not video_files:
-    raise FileNotFoundError("❌ Video file not found after download")
+    raise FileNotFoundError("❌ No .mp4 video file found after download")
 
-# The raw base filename before sanitization
-raw_video_file = os.path.join(download_path, video_files[0])
-raw_base, raw_ext = os.path.splitext(os.path.basename(raw_video_file))
+latest_video = max(video_files, key=lambda f: f.stat().st_mtime)
+raw_base, raw_ext = os.path.splitext(latest_video.name)
 safe_base = sanitize_filename(raw_base)
-video_file = os.path.join(download_path, safe_base + raw_ext)
+video_file = download_path / (safe_base + raw_ext)
 
-# Rename main video if needed
-if raw_video_file != video_file:
-    os.rename(raw_video_file, video_file)
+# Rename video if needed
+if latest_video != video_file:
+    latest_video.rename(video_file)
     print(f"🧹 Renamed video → {video_file}")
 
-# Rename all sidecar files (.json, .vtt, .srt, etc.) to match sanitized base
-for f in all_files:
-    if f.startswith(raw_base) and f != os.path.basename(raw_video_file):
-        raw_path = os.path.join(download_path, f)
-        new_name = f.replace(raw_base, safe_base, 1)
-        new_path = os.path.join(download_path, sanitize_filename(new_name))
-        os.rename(raw_path, new_path)
-        print(f"🧹 Renamed sidecar → {new_path}")
+# Rename sidecar files to match sanitized base
+for f in download_path.iterdir():
+    if f.name.startswith(raw_base) and f != latest_video:
+        new_name = f.name.replace(raw_base, safe_base, 1)
+        f.rename(download_path / sanitize_filename(new_name))
+        print(f"🧹 Renamed sidecar → {download_path / sanitize_filename(new_name)}")
 
 print(f"✅ Download complete: {video_file}")
 
@@ -69,7 +67,7 @@ clips: list[MediaSegment] = []
 if use_auto_split:
     print("📝 Transcribing + AI highlight detection...")
     transcriber = Transcriber()
-    transcription = transcriber.transcribe(video_file)
+    transcription = transcriber.transcribe(str(video_file))
 
     clip_finder = ClipFinder()
     clips = clip_finder.find_clips(transcription=transcription)
@@ -80,7 +78,7 @@ if use_auto_split:
 else:
     print("⏱ Using fixed time-based splitting...")
     import cv2
-    cap = cv2.VideoCapture(video_file)
+    cap = cv2.VideoCapture(str(video_file))
     total_duration = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(cv2.CAP_PROP_FPS))
     cap.release()
 
@@ -97,13 +95,13 @@ for idx, clip in enumerate(clips):
 
     raw_clip_name = f"{safe_base}_clip_{idx+1}.mp4"
     safe_clip_name = sanitize_filename(raw_clip_name)
-    clip_path = os.path.join(download_path, safe_clip_name)
+    clip_path = download_path / safe_clip_name
 
     cmd = [
-        "ffmpeg", "-i", video_file,
+        "ffmpeg", "-i", str(video_file),
         "-ss", str(start),
         "-to", str(end) if end else "",
-        "-c", "copy", clip_path
+        "-c", "copy", str(clip_path)
     ]
     cmd = [c for c in cmd if c]  # remove empty args
     subprocess.run(cmd, check=True)
@@ -112,7 +110,7 @@ for idx, clip in enumerate(clips):
     # Step 4: Resize/crop
     print("📱 Resizing for TikTok/IG...")
     crops = resize(
-        video_file_path=clip_path,
+        video_file_path=str(clip_path),
         pyannote_auth_token=os.getenv("PYANNOTE_AUTH_TOKEN"),  # required arg
         aspect_ratio=(9, 16)
     )
