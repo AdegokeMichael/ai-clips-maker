@@ -6,7 +6,11 @@ from pathlib import Path
 
 # Import ai-clips-maker modules
 from ai_clips_maker import Transcriber, ClipFinder, resize
-from ai_clips_maker.txtslice.matcher import MediaSegment  # handle clip objects
+# from ai_clips_maker.txtslice.matcher import MediaSegment  # handle clip objects
+
+# correct
+from ai_clips_maker.media.temporal_media_file import TemporalMediaFile
+
 
 # Load environment variables
 load_dotenv()
