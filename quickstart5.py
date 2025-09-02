@@ -7,9 +7,14 @@ from pathlib import Path
 # Import ai-clips-maker modules
 from ai_clips_maker import Transcriber, ClipFinder, resize
 # from ai_clips_maker.txtslice.matcher import MediaSegment  # handle clip objects
+# wrong
+# from ai_clips_maker.txtslice.matcher import MediaSegment
 
 # correct
-from ai_clips_maker.media.temporal_media_file import TemporalMediaFile
+# from ai_clips_maker.media.temporal_media_file import TemporalMediaFile
+from ai_clips_maker.media.temporal_media_file import TemporalMediaFile as MediaSegment
+
+
 
 
 # Load environment variables
