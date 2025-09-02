@@ -1,7 +1,8 @@
-from ai_clips_maker.filesys import object as obj
+from ai_clips_maker.media.temporal_media_file import TemporalMediaFile
+
 
 def inspect_media(path: str):
-    media = obj.TemporalMediaFile(path)
+    media = TemporalMediaFile(path)
     print("\n=== Media Inspection ===")
     print(f"Path: {path}")
     print(f"Duration (s): {media.duration}")
@@ -10,6 +11,7 @@ def inspect_media(path: str):
     print(f"Video streams: {media.video_streams}")
     print(f"Audio streams: {media.audio_streams}")
     print("========================\n")
+
 
 if __name__ == "__main__":
     inspect_media("downloads/Free_software__free_society__Richard_Stallman_at_TEDxGeneva_2014.mp4")
